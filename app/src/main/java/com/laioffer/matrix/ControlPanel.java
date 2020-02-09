@@ -93,6 +93,8 @@ import java.text.DecimalFormat;
                 return true;
             }
         });
+        //add Fragment to the activity
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, MainFragment.newInstance()).commit();
     }
 
      private void logout() {
