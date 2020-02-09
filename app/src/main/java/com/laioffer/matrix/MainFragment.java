@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
 /**
@@ -31,6 +32,8 @@ public class MainFragment extends Fragment implements OnMapReadyCallback {
     private View view;
     private GoogleMap googleMap;
     private LocationTracker locationTracker;
+    private FloatingActionButton fabReport;
+    private ReportDialog dialog;
 
     public static MainFragment newInstance() {
 
@@ -58,6 +61,14 @@ public class MainFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mapView = view.findViewById(R.id.event_map_view);
+        fabReport = view.findViewById(R.id.fab);
+        fabReport.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                showDialog(null, null);
+            }
+        });
         if (mapView != null) {
             mapView.onCreate(null);
             mapView.onResume();
@@ -135,4 +146,16 @@ public class MainFragment extends Fragment implements OnMapReadyCallback {
         googleMap.addMarker(marker);
 
     }
+
+    //    private void showDialog(String label, String prefillText) {
+//        dialog = new ReportDialog(getContext());
+//        dialog.show();
+//    }
+    private void showDialog(String label, String prefillText) {
+        int cx = (int) (fabReport.getX() + (fabReport.getWidth() / 2)); // center of report floating action button
+        int cy = (int) (fabReport.getY()) + fabReport.getHeight() + 56;
+        dialog = ReportDialog.newInstance(getContext(), cx, cy);
+        dialog.show();
+    }
+
 }
