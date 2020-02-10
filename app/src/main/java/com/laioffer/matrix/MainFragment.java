@@ -33,6 +33,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap googleMap;
     private LocationTracker locationTracker;
     private FloatingActionButton fabReport;
+    private FloatingActionButton fabFocus;
     private ReportDialog dialog;
 
     public static MainFragment newInstance() {
@@ -69,6 +70,15 @@ public class MainFragment extends Fragment implements OnMapReadyCallback {
                 showDialog(null, null);
             }
         });
+
+        fabFocus = view.findViewById(R.id.fab_focus);
+        fabFocus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mapView.getMapAsync(MainFragment.this);
+            }
+        });
+
         if (mapView != null) {
             mapView.onCreate(null);
             mapView.onResume();

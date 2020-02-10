@@ -12,8 +12,16 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,6 +30,15 @@ public class ReportDialog extends Dialog {
     private int cy;
     private RecyclerView mRecyclerView;
     private ReportRecyclerViewAdapter mRecyclerViewAdapter;
+    private ViewSwitcher mViewSwitcher;
+    private String mEventType;
+    //Event specs
+    private ImageView mImageCamera;
+    private Button mBackButton;
+    private Button mSendButton;
+    private EditText mCommentEditText;
+    private ImageView mEventTypeImg;
+    private TextView mTypeTextView;
 
 
     public ReportDialog(@NonNull Context context) {
@@ -69,6 +86,15 @@ public class ReportDialog extends Dialog {
             }
         });
         setupRecyclerView(dialogView);
+
+        mViewSwitcher = dialogView.findViewById(R.id.viewSwitcher);
+        //set view switch animation
+        Animation slide_in_left = AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_in_left);
+        Animation slide_out_right = AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_out_right);
+        mViewSwitcher.setInAnimation(slide_in_left);
+        mViewSwitcher.setOutAnimation(slide_out_right);
+
+        setUpEventSpecs(dialogView);
     }
 
     private void animateDialog(View dialogView, boolean open) {
@@ -106,9 +132,29 @@ public class ReportDialog extends Dialog {
             @Override
             public void setItem(String item) {
                 //for switch item
+                showNextViewSwitcher(item);
             }
         });
 
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
+    }
+
+    private void showNextViewSwitcher(String item) {
+        mEventType = item;
+        if (mEventType != null) {
+            mViewSwitcher.showNext();
+            mTypeTextView.setText(mEventType);
+            mEventTypeImg.setImageDrawable(ContextCompat.getDrawable(getContext(), Config.trafficMap.get(mEventType)));
+        }
+    }
+
+    private void setUpEventSpecs(final View dialogView) {
+        mImageCamera = dialogView.findViewById(R.id.event_camera_img);
+        mBackButton = dialogView.findViewById(R.id.event_back_button);
+        mSendButton = dialogView.findViewById(R.id.event_send_button);
+        mCommentEditText = dialogView.findViewById(R.id.event_comment);
+        mEventTypeImg = dialogView.findViewById(R.id.event_type_img);
+        mTypeTextView = dialogView.findViewById(R.id.event_type);
+
     }
 }
