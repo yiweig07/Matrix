@@ -39,6 +39,13 @@ public class ReportDialog extends Dialog {
     private EditText mCommentEditText;
     private ImageView mEventTypeImg;
     private TextView mTypeTextView;
+    private DialogCallBack mDialogCallBack;
+
+    interface DialogCallBack {
+        void onSubmit(String editString, String event_type);
+
+        void startCamera();
+    }
 
 
     public ReportDialog(@NonNull Context context) {
@@ -95,6 +102,10 @@ public class ReportDialog extends Dialog {
         mViewSwitcher.setOutAnimation(slide_out_right);
 
         setUpEventSpecs(dialogView);
+    }
+
+    public void setDialogCallBack(DialogCallBack dialogCallBack) {
+        mDialogCallBack = dialogCallBack;
     }
 
     private void animateDialog(View dialogView, boolean open) {
@@ -155,6 +166,13 @@ public class ReportDialog extends Dialog {
         mCommentEditText = dialogView.findViewById(R.id.event_comment);
         mEventTypeImg = dialogView.findViewById(R.id.event_type_img);
         mTypeTextView = dialogView.findViewById(R.id.event_type);
+
+        mSendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDialogCallBack.onSubmit(mCommentEditText.getText().toString(), mEventType);
+            }
+        });
 
     }
 }
