@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -26,18 +27,22 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -197,6 +202,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback, Report
         //adding marker
         googleMap.addMarker(marker);
 
+        loadEventInVisibleMap();
     }
 
     //    private void showDialog(String label, String prefillText) {
@@ -311,6 +317,7 @@ public class MainFragment extends Fragment implements OnMapReadyCallback, Report
         File file = new File(path);
         if (!file.exists()) {
             dialog.dismiss();
+            loadEventInVisibleMap();
             return;
         }
 
@@ -334,6 +341,44 @@ public class MainFragment extends Fragment implements OnMapReadyCallback, Report
                 File file = new File(path);
                 file.delete();
                 dialog.dismiss();
+                loadEventInVisibleMap();
+            }
+        });
+    }
+
+    //get center coordinate
+    private void loadEventInVisibleMap() {
+        database.child("events").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot noteDataSnapshot : dataSnapshot.getChildren()) {
+                    TrafficEvent event = noteDataSnapshot.getValue(TrafficEvent.class);
+                    double eventLatitude = event.getEvent_latitude();
+                    double eventLongitude = event.getEvent_longitude();
+
+                    locationTracker.getLocation();
+                    double centerLatitude = locationTracker.getLatitude();
+                    double centerLongitude = locationTracker.getLongitude();
+
+                    int distance = Utils.distanceBetweenTwoLocations(centerLatitude, centerLongitude, eventLatitude, eventLongitude);
+                    if (distance < 20) {
+                        LatLng latLng = new LatLng(eventLatitude, eventLongitude);
+                        //changing marker icon
+                        MarkerOptions marker = new MarkerOptions().position(latLng);
+                        String type = event.getEvent_type();
+                        Bitmap icon = BitmapFactory.decodeResource(getContext().getResources(), Config.trafficMap.get(type));
+                        Bitmap resizeBitmap = Utils.getResizedBitmap(icon, 130, 130);
+                        marker.icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap));
+                        //add marker
+                        Marker mk = googleMap.addMarker(marker);
+                        mk.setTag(event);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
     }
