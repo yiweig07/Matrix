@@ -174,5 +174,12 @@ public class ReportDialog extends Dialog {
             }
         });
 
+        mBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mViewSwitcher.showPrevious();
+            }
+        });
+
     }
 }
