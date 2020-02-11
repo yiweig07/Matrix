@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -108,6 +109,11 @@ public class ReportDialog extends Dialog {
         mDialogCallBack = dialogCallBack;
     }
 
+    public void updateImage(Bitmap bitmap) {
+        mImageCamera.setImageBitmap(bitmap);
+    }
+
+
     private void animateDialog(View dialogView, boolean open) {
         final View view = dialogView.findViewById(R.id.dialog);
         int w = view.getWidth();
@@ -166,6 +172,13 @@ public class ReportDialog extends Dialog {
         mCommentEditText = dialogView.findViewById(R.id.event_comment);
         mEventTypeImg = dialogView.findViewById(R.id.event_type_img);
         mTypeTextView = dialogView.findViewById(R.id.event_type);
+
+        mImageCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDialogCallBack.startCamera();
+            }
+        });
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
